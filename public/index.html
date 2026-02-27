@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokédex</title>
+    <meta name="description" content="Pokédex: lista completa de Pokémon con imágenes, búsqueda y backend listo para base de datos." />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar__inner">
+        <div class="brand">
+          <div class="brand__logo" aria-hidden="true">P</div>
+          <div class="brand__text">
+            <div class="brand__title">Pokédex</div>
+            <div class="brand__subtitle" id="subtitle">Cargando…</div>
+          </div>
+        </div>
+
+        <div class="search">
+          <label class="sr-only" for="searchInput">Buscar Pokémon</label>
+          <input id="searchInput" class="search__input" type="search" placeholder="Buscar por nombre (ej. pikachu)" autocomplete="off" />
+          <button id="clearBtn" class="search__clear" type="button" title="Limpiar" aria-label="Limpiar búsqueda">×</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="toolbar">
+        <div class="toolbar__left">
+          <span class="pill" id="countPill">—</span>
+          <span class="hint">Tip: escribe para filtrar, baja para cargar más</span>
+        </div>
+        <div class="toolbar__right">
+          <button id="reloadBtn" class="btn" type="button">Recargar</button>
+        </div>
+      </section>
+
+      <section>
+        <div id="grid" class="grid" aria-live="polite"></div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+        <div id="sentinel" class="sentinel" aria-hidden="true"></div>
+      </section>
+    </main>
+
+    <template id="cardTemplate">
+      <article class="card">
+        <div class="card__imgWrap">
+          <img class="card__img" loading="lazy" decoding="async" alt="" />
+        </div>
+        <div class="card__meta">
+          <div class="card__id"></div>
+          <div class="card__name"></div>
+          <div class="card__tags" aria-label="Tipos"></div>
+          <div class="card__abilities" aria-label="Habilidades"></div>
+        </div>
+      </article>
+    </template>
+
+    <dialog id="detailDialog" class="dialog">
+      <form method="dialog" class="dialog__backdrop">
+        <section class="dialog__panel" role="document" aria-labelledby="dialogTitle">
+          <header class="dialog__header">
+            <div class="dialog__titleWrap">
+              <div class="dialog__title" id="dialogTitle">Pokémon</div>
+              <div class="dialog__subtitle" id="dialogSubtitle"></div>
+            </div>
+            <button class="dialog__close" value="close" aria-label="Cerrar">×</button>
+          </header>
+
+          <div class="dialog__content">
+            <div class="dialog__row">
+              <div class="dialog__label">Tipos</div>
+              <div id="dialogTypes" class="dialog__value"></div>
+            </div>
+            <div class="dialog__row">
+              <div class="dialog__label">Habilidades</div>
+              <div id="dialogAbilities" class="dialog__value"></div>
+            </div>
+
+            <div class="dialog__row dialog__row--stats">
+              <div class="dialog__label">Stats base</div>
+              <div id="dialogStats" class="stats"></div>
+            </div>
+            <div id="dialogStatus" class="dialog__status"></div>
+          </div>
+        </section>
+      </form>
+    </dialog>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
+
