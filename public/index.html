@@ -1,96 +1,160 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pokédex</title>
-    <meta name="description" content="Pokédex: lista completa de Pokémon con imágenes, búsqueda y backend listo para base de datos." />
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <div class="container topbar__inner">
-        <div class="brand">
-          <div class="brand__logo" aria-hidden="true">P</div>
-          <div class="brand__text">
-            <div class="brand__title">Pokédex</div>
-            <div class="brand__subtitle" id="subtitle">Cargando…</div>
-          </div>
-        </div>
 
-        <div class="search">
-          <label class="sr-only" for="searchInput">Buscar Pokémon</label>
-          <input id="searchInput" class="search__input" type="search" placeholder="Buscar por nombre (ej. pikachu)" autocomplete="off" />
-          <button id="clearBtn" class="search__clear" type="button" title="Limpiar" aria-label="Limpiar búsqueda">×</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokédex</title>
+  <meta name="description"
+    content="Pokédex: lista completa de Pokémon con imágenes, búsqueda y backend listo para base de datos." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div class="brand">
+        <div class="brand__logo" aria-hidden="true">P</div>
+        <div class="brand__text">
+          <div class="brand__title">Pokédex</div>
+          <div class="brand__subtitle" id="subtitle">Cargando…</div>
         </div>
       </div>
-    </header>
 
-    <main class="container">
-      <section class="toolbar">
-        <div class="toolbar__left">
-          <span class="pill" id="countPill">—</span>
-          <span class="hint">Tip: escribe para filtrar, baja para cargar más</span>
+      <div class="search">
+        <label class="sr-only" for="searchInput">Buscar Pokémon</label>
+        <input id="searchInput" class="search__input" type="search" placeholder="Buscar por nombre (ej. pikachu)"
+          autocomplete="off" />
+        <button id="clearBtn" class="search__clear" type="button" title="Limpiar"
+          aria-label="Limpiar búsqueda">×</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="toolbar">
+      <div class="toolbar__left">
+        <span class="pill" id="countPill">—</span>
+        <span class="hint">Tip: escribe para filtrar, baja para cargar más</span>
+      </div>
+      <div class="toolbar__right">
+        <button id="reloadBtn" class="btn" type="button">Recargar</button>
+        <button id="battleModeBtn" class="btn" type="button">⚔️ Modo Batalla</button>
+      </div>
+    </section>
+
+    <!-- Battle selection bar (visible in battle mode) -->
+    <div id="battleBar" class="battle-bar" hidden>
+      <div class="battle-bar__label">Elige 2 Pokémon para combatir</div>
+      <div class="battle-bar__slots">
+        <div id="battleSlot1" class="battle-slot">
+          <span class="battle-slot__empty">Pokémon 1</span>
         </div>
-        <div class="toolbar__right">
-          <button id="reloadBtn" class="btn" type="button">Recargar</button>
+        <div class="battle-slot__vs">VS</div>
+        <div id="battleSlot2" class="battle-slot">
+          <span class="battle-slot__empty">Pokémon 2</span>
         </div>
-      </section>
+      </div>
+      <button id="doFightBtn" class="btn btn--fight" disabled>⚔️ ¡Batallar!</button>
+    </div>
 
-      <section>
-        <div id="grid" class="grid" aria-live="polite"></div>
+    <section>
+      <div id="grid" class="grid" aria-live="polite"></div>
 
-        <div id="status" class="status" role="status" aria-live="polite"></div>
-        <div id="sentinel" class="sentinel" aria-hidden="true"></div>
-      </section>
-    </main>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <div id="sentinel" class="sentinel" aria-hidden="true"></div>
+    </section>
+  </main>
 
-    <template id="cardTemplate">
-      <article class="card">
-        <div class="card__imgWrap">
-          <img class="card__img" loading="lazy" decoding="async" alt="" />
-        </div>
-        <div class="card__meta">
-          <div class="card__id"></div>
-          <div class="card__name"></div>
-          <div class="card__tags" aria-label="Tipos"></div>
-          <div class="card__abilities" aria-label="Habilidades"></div>
-        </div>
-      </article>
-    </template>
+  <template id="cardTemplate">
+    <article class="card">
+      <div class="card__imgWrap">
+        <img class="card__img" loading="lazy" decoding="async" alt="" />
+      </div>
+      <div class="card__meta">
+        <div class="card__id"></div>
+        <div class="card__name"></div>
+        <div class="card__tags" aria-label="Tipos"></div>
+        <div class="card__abilities" aria-label="Habilidades"></div>
+      </div>
+    </article>
+  </template>
 
-    <dialog id="detailDialog" class="dialog">
-      <form method="dialog" class="dialog__backdrop">
-        <section class="dialog__panel" role="document" aria-labelledby="dialogTitle">
-          <header class="dialog__header">
-            <div class="dialog__titleWrap">
-              <div class="dialog__title" id="dialogTitle">Pokémon</div>
-              <div class="dialog__subtitle" id="dialogSubtitle"></div>
-            </div>
-            <button class="dialog__close" value="close" aria-label="Cerrar">×</button>
-          </header>
-
-          <div class="dialog__content">
-            <div class="dialog__row">
-              <div class="dialog__label">Tipos</div>
-              <div id="dialogTypes" class="dialog__value"></div>
-            </div>
-            <div class="dialog__row">
-              <div class="dialog__label">Habilidades</div>
-              <div id="dialogAbilities" class="dialog__value"></div>
-            </div>
-
-            <div class="dialog__row dialog__row--stats">
-              <div class="dialog__label">Stats base</div>
-              <div id="dialogStats" class="stats"></div>
-            </div>
-            <div id="dialogStatus" class="dialog__status"></div>
+  <dialog id="detailDialog" class="dialog">
+    <form method="dialog" class="dialog__backdrop">
+      <section class="dialog__panel" role="document" aria-labelledby="dialogTitle">
+        <header class="dialog__header">
+          <div class="dialog__titleWrap">
+            <div class="dialog__title" id="dialogTitle">Pokémon</div>
+            <div class="dialog__subtitle" id="dialogSubtitle"></div>
           </div>
-        </section>
-      </form>
-    </dialog>
+          <button class="dialog__close" value="close" aria-label="Cerrar">×</button>
+        </header>
 
-    <script type="module" src="/app.js"></script>
-  </body>
+        <div class="dialog__content">
+          <div class="dialog__row">
+            <div class="dialog__label">Tipos</div>
+            <div id="dialogTypes" class="dialog__value"></div>
+          </div>
+          <div class="dialog__row">
+            <div class="dialog__label">Habilidades</div>
+            <div id="dialogAbilities" class="dialog__value"></div>
+          </div>
+
+          <div class="dialog__row dialog__row--stats">
+            <div class="dialog__label">Stats base</div>
+            <div id="dialogStats" class="stats"></div>
+          </div>
+          <div id="dialogStatus" class="dialog__status"></div>
+        </div>
+      </section>
+    </form>
+  </dialog>
+
+  <!-- Battle Arena (full-screen overlay) -->
+  <div id="battleArena" class="battle-arena" hidden>
+    <div class="battle-arena__inner">
+      <header class="battle-arena__header">
+        <h2 class="battle-arena__title">⚔️ Batalla Pokémon</h2>
+        <button id="closeBattleBtn" class="btn">← Volver</button>
+      </header>
+
+      <!-- Fighter cards + HP bars -->
+      <div class="battle-stage">
+        <div class="battle-fighter bf--p1" id="bfighter1">
+          <div class="bf__name">—</div>
+          <img class="bf__img" src="" alt="" />
+          <div class="bf__hp-bar"><div class="bf__hp-fill" style="width:100%;background:#22c55e"></div></div>
+          <div class="bf__hp-text" style="color:#22c55e">100%</div>
+        </div>
+        <div class="battle-vs-badge">VS</div>
+        <div class="battle-fighter bf--p2" id="bfighter2">
+          <div class="bf__name">—</div>
+          <img class="bf__img" src="" alt="" />
+          <div class="bf__hp-bar"><div class="bf__hp-fill" style="width:100%;background:#22c55e"></div></div>
+          <div class="bf__hp-text" style="color:#22c55e">100%</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="battle-controls">
+        <button id="battleStartBtn" class="btn btn--fight">¡Iniciar Batalla!</button>
+        <button id="battleAgainBtn" class="btn" hidden>← Elegir otros Pokémon</button>
+      </div>
+
+      <!-- Turn-by-turn log -->
+      <div id="battleLog" class="battle-log" aria-live="polite"></div>
+
+      <!-- Winner announcement -->
+      <div id="battleWinner" class="battle-winner" hidden>
+        <div class="winner-badge">🏆 GANADOR</div>
+        <img id="winnerImg" class="winner-img" src="" alt="" />
+        <div id="winnerName" class="winner-name">—</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+
 </html>
-
